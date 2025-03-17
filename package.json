@@ -1,0 +1,31 @@
+{
+  "name": "vrchat-mcp-osc",
+  "version": "0.1.0",
+  "description": "VR Butler - VRChat AI Assistant Integration",
+  "private": true,
+  "scripts": {
+    "build": "pnpm -r build",
+    "dev": "pnpm -r dev",
+    "test": "pnpm -r test",
+    "clean": "pnpm -r clean",
+    "lint": "pnpm -r lint"
+  },
+  "keywords": [
+    "vrchat",
+    "osc",
+    "mcp",
+    "ai-assistant"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "pnpm": "^10.6.3"
+  }
+}

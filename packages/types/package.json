@@ -1,0 +1,27 @@
+{
+  "name": "@vrchat-mcp-osc/types",
+  "version": "0.1.0",
+  "description": "Common type definitions for VR Butler",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "clean": "rimraf dist",
+    "lint": "eslint src/**/*.ts"
+  },
+  "keywords": [
+    "vrchat",
+    "osc",
+    "types"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.10.5",
+    "eslint": "^9.20.0",
+    "rimraf": "^5.0.5",
+    "typescript": "^5.3.3"
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "name": "@vrchat-mcp-osc/relay-server",
+  "version": "0.1.0",
+  "description": "WebSocket to OSC relay server for VR Butler",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "bin": {
+    "vrchat-mcp-osc-relay": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node --esm src/index.ts",
+    "clean": "rimraf dist",
+    "lint": "eslint src/**/*.ts"
+  },
+  "keywords": [
+    "vrchat",
+    "osc",
+    "relay",
+    "websocket"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@vrchat-mcp-osc/types": "workspace:*",
+    "@vrchat-mcp-osc/utils": "workspace:*",
+    "node-osc": "^8.0.12",
+    "ws": "^8.15.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.5",
+    "@types/node-osc": "^6.0.3",
+    "@types/ws": "^8.5.10",
+    "eslint": "^9.20.0",
+    "rimraf": "^5.0.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  }
+}
