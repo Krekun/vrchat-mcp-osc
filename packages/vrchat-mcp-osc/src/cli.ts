@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * VR Butler command-line interface
+ * vrchat-mcp-osc command-line interface
  */
 
 import { createLogger } from '@vrchat-mcp-osc/utils';
@@ -8,7 +8,7 @@ import { Command } from 'commander';
 import fs from 'fs';
 import path, { dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { Butler } from './index.js';
+import { Mcp } from './index.js';
 
 const logger = createLogger('CLI');
 
@@ -24,13 +24,13 @@ const program = new Command();
 // Set up CLI
 program
   .name('vrchat-mcp-osc')
-  .description('VR Butler - VRChat AI Assistant Integration')
+  .description('vrchat-mcp-osc - VRChat AI Assistant Integration')
   .version(packageJson.version);
 
 // Start command
 program
   .command('start')
-  .description('Start VR Butler')
+  .description('Start vrchat-mcp-osc')
   .option('-c, --config <path>', 'Path to configuration file')
   .option('-p, --ws-port <port>', 'WebSocket port for relay server', '8765')
   .option('-v, --verbose', 'Enable verbose logging')
@@ -44,7 +44,7 @@ program
     }
     
     
-    logger.info('Starting VR Butler');
+    logger.info('Starting vrchat-mcp-osc');
     
     try {
       // Load configuration if specified
@@ -52,29 +52,29 @@ program
       
       // Set environment variables
       if (options.wsPort) {
-        process.env.VR_BUTLER_WEBSOCKET_PORT = options.wsPort;
+        process.env.VRCHAT_MCP_OSC_WEBSOCKET_PORT = options.wsPort;
       }
       
-      // Create and start Butler
-      const butler = new Butler(config);
-      await butler.start();
+      // Create and start Mcp
+      const vrchat_mcp_oscf = new Mcp(config);
+      await vrchat_mcp_oscf.start();
       
       // Handle process signals
       process.on('SIGINT', async () => {
         logger.info('Received SIGINT signal');
-        await butler.stop();
+        await vrchat_mcp_oscf.stop();
         process.exit(0);
       });
       
       process.on('SIGTERM', async () => {
         logger.info('Received SIGTERM signal');
-        await butler.stop();
+        await vrchat_mcp_oscf.stop();
         process.exit(0);
       });
       
-      logger.info('VR Butler is running. Press Ctrl+C to stop.');
+      logger.info('vrchat-mcp-osc is running. Press Ctrl+C to stop.');
     } catch (error) {
-      logger.error(`Error starting VR Butler: ${error instanceof Error ? error.message : String(error)}`);
+      logger.error(`Error starting vrchat-mcp-osc: ${error instanceof Error ? error.message : String(error)}`);
       process.exit(1);
     }
   });

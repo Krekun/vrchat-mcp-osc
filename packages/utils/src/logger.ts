@@ -1,5 +1,5 @@
 /**
- * Shared logger setup for VR Butler components
+ * Shared logger setup for vrchat-mcp-osc components
  */
 import fs from 'fs';
 import path from 'path';

@@ -1,5 +1,5 @@
 /**
- * VR Butler main entry point
+ * vrchat-mcp-osc main entry point
  */
 
 import { Config, createLogger } from '@vrchat-mcp-osc/utils';
@@ -8,12 +8,12 @@ import fs from 'fs';
 import path, { dirname } from 'path';
 import { fileURLToPath } from 'url';
 
-const logger = createLogger('Butler');
+const logger = createLogger('Mcp');
 
 /**
- * VR Butler options
+ * vrchat-mcp-osc options
  */
-export interface ButlerOptions {
+export interface McpOptions {
   /** Path to configuration file */
   configPath?: string;
   /** WebSocket port */
@@ -31,26 +31,26 @@ export interface ButlerOptions {
 }
 
 /**
- * Main VR Butler class
+ * Main vrchat-mcp-osc class
  */
-export class Butler {
+export class Mcp {
   private config: Config;
-  private options: ButlerOptions;
+  private options: McpOptions;
   private mcpProcess: ChildProcess | null = null;
   private running: boolean = false;
   
   /**
-   * Create a new Butler instance
+   * Create a new Mcp instance
    * 
    * @param options Options
    */
-  constructor(options: ButlerOptions = {}) {
+  constructor(options: McpOptions = {}) {
     // Store options for later use
     this.options = options;
     
     // Initialize configuration
     this.config = new Config({
-      envPrefix: 'VR_BUTLER_',
+      envPrefix: 'VRCHAT_MCP_OSC_',
       defaults: {
         websocket: {
           port: 8765
@@ -83,55 +83,55 @@ export class Butler {
     if (options.claudeMode) {
       process.env.RUNNING_FROM_CLAUDE = 'true';
       process.env.LOG_TO_FILE = 'true';
-      logger.info('Butler initialized in Claude compatibility mode');
+      logger.info('Mcp initialized in Claude compatibility mode');
     }
     
-    logger.info('Butler initialized');
+    logger.info('Mcp initialized');
   }
   
   /**
-   * Start VR Butler
+   * Start vrchat-mcp-osc
    * 
-   * @returns Promise resolving when butler is started
+   * @returns Promise resolving when vrchat_mcp_oscf is started
    */
   public async start(): Promise<void> {
     if (this.running) {
-      logger.info('Butler is already running');
+      logger.info('Mcp is already running');
       return;
     }
     
-    logger.info('Starting VR Butler');
+    logger.info('Starting vrchat-mcp-osc');
     
     try {
       // Start MCP server
       await this.startMcpServer();
       
       this.running = true;
-      logger.info('VR Butler started successfully');
+      logger.info('vrchat-mcp-osc started successfully');
     } catch (error) {
-      logger.error(`Error starting Butler: ${error instanceof Error ? error.message : String(error)}`);
+      logger.error(`Error starting Mcp: ${error instanceof Error ? error.message : String(error)}`);
       throw error;
     }
   }
   
   /**
-   * Stop VR Butler
+   * Stop vrchat-mcp-osc
    * 
-   * @returns Promise resolving when butler is stopped
+   * @returns Promise resolving when vrchat_mcp_oscf is stopped
    */
   public async stop(): Promise<void> {
     if (!this.running) {
-      logger.info('Butler is not running');
+      logger.info('Mcp is not running');
       return;
     }
     
-    logger.info('Stopping VR Butler');
+    logger.info('Stopping vrchat-mcp-osc');
     
     // Stop MCP server
     await this.stopMcpServer();
     
     this.running = false;
-    logger.info('VR Butler stopped');
+    logger.info('vrchat-mcp-osc stopped');
   }
   
   /**
@@ -154,9 +154,9 @@ export class Butler {
     // Prepare environment variables
     const env = {
       ...process.env,
-      VR_BUTLER_WEBSOCKET_PORT: String(this.config.get('websocket.port')),
-      VR_BUTLER_OSC_SEND_PORT: String(this.config.get('osc.send.port')),
-      VR_BUTLER_OSC_RECEIVE_PORT: String(this.config.get('osc.receive.port')),
+      VRCHAT_MCP_OSC_WEBSOCKET_PORT: String(this.config.get('websocket.port')),
+      VRCHAT_MCP_OSC_OSC_SEND_PORT: String(this.config.get('osc.send.port')),
+      VRCHAT_MCP_OSC_OSC_RECEIVE_PORT: String(this.config.get('osc.receive.port')),
       LOG_TO_FILE: isRunningFromClaude ? 'true' : process.env.LOG_TO_FILE || 'false',
       ...this.config.get('env', {})
     };
@@ -317,8 +317,8 @@ export class Butler {
    * @returns Promise resolving to the module path
    */
   private async resolveModulePath(moduleName: string): Promise<string> {
-    // Special case for vr_butler vs vrchat-mcp-osc path issue
-    const normalizedModuleName = moduleName.replace('vr_butler', 'vrchat-mcp-osc');
+    // Special case for vr_vrchat_mcp_oscf vs vrchat-mcp-osc path issue
+    const normalizedModuleName = moduleName.replace('vr_vrchat_mcp_oscf', 'vrchat-mcp-osc');
     if (normalizedModuleName !== moduleName) {
       logger.debug(`Normalized module name from ${moduleName} to ${normalizedModuleName}`);
     }

@@ -1,7 +1,7 @@
 {
   "name": "@vrchat-mcp-osc/utils",
   "version": "0.1.0",
-  "description": "Shared utilities for VR Butler",
+  "description": "Shared utilities for vrchat-mcp-osc",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",

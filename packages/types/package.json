@@ -1,7 +1,7 @@
 {
   "name": "@vrchat-mcp-osc/types",
   "version": "0.1.0",
-  "description": "Common type definitions for VR Butler",
+  "description": "Common type definitions for vrchat-mcp-osc",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",

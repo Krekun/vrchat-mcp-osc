@@ -1,7 +1,7 @@
 {
   "name": "@vrchat-mcp-osc/relay-server",
   "version": "0.1.0",
-  "description": "WebSocket to OSC relay server for VR Butler",
+  "description": "WebSocket to OSC relay server for vrchat-mcp-osc",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",

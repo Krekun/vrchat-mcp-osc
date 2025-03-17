@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Build script for all packages in the VR Butler monorepo
+ * Build script for all packages in the vrchat-mcp-osc monorepo
  */
 
 const { spawnSync } = require('child_process');
@@ -30,7 +30,7 @@ const colors = {
 const rootDir = path.resolve(__dirname, '..');
 const packagesDir = path.join(rootDir, 'packages');
 
-console.log(`${colors.bright}${colors.blue}Building VR Butler packages${colors.reset}\n`);
+console.log(`${colors.bright}${colors.blue}Building vrchat-mcp-osc packages${colors.reset}\n`);
 
 // Build each package in order
 let success = true;

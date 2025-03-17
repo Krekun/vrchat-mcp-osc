@@ -11,7 +11,7 @@ const logger = createLogger('RelayServer');
 
 // Parse command line arguments
 const config = new Config({
-  envPrefix: 'VR_BUTLER_',
+  envPrefix: 'VRCHAT_MCP_OSC_',
   defaults: {
     websocket: {
       host: 'localhost',

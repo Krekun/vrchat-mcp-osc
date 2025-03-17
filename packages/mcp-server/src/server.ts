@@ -54,7 +54,7 @@ const relayServerManager = new RelayServerManager({
   args: [relayServerPath],
   autoRestart: true,
   env: {
-    VR_BUTLER_WEBSOCKET_PORT: process.env.VR_BUTLER_WEBSOCKET_PORT || '8765'
+    VRCHAT_MCP_OSC_WEBSOCKET_PORT: process.env.VRCHAT_MCP_OSC_WEBSOCKET_PORT || '8765'
   }
 });
 
@@ -77,8 +77,8 @@ relayServerManager.on(RelayServerManagerEvent.RESTARTING, ({ attempt }) => {
 
 // Initialize WebSocket client
 const wsClient = new WebSocketClient({
-  host: process.env.VR_BUTLER_WEBSOCKET_HOST || 'localhost',
-  port: parseInt(process.env.VR_BUTLER_WEBSOCKET_PORT || '8765', 10),
+  host: process.env.VRCHAT_MCP_OSC_WEBSOCKET_HOST || 'localhost',
+  port: parseInt(process.env.VRCHAT_MCP_OSC_WEBSOCKET_PORT || '8765', 10),
   reconnectAttempts: 3
 });
 

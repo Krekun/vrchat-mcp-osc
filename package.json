@@ -1,7 +1,7 @@
 {
   "name": "vrchat-mcp-osc",
   "version": "0.1.0",
-  "description": "VR Butler - VRChat AI Assistant Integration",
+  "description": "vrchat-mcp-osc - VRChat AI Assistant Integration",
   "private": true,
   "scripts": {
     "build": "pnpm -r build",

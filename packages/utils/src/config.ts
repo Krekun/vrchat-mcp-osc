@@ -1,5 +1,5 @@
 /**
- * Configuration manager for VR Butler components
+ * Configuration manager for vrchat-mcp-osc components
  */
 import { ConfigOptions } from '@vrchat-mcp-osc/types';
 import fs from 'fs';
@@ -23,7 +23,7 @@ export class Config {
    */
   constructor(options: ConfigOptions = {}) {
     this.defaults = options.defaults || {};
-    this.envPrefix = options.envPrefix || 'VR_BUTLER_';
+    this.envPrefix = options.envPrefix || 'VRCHAT_MCP_OSC_';
     
     // Load defaults
     this.config = { ...this.defaults };
