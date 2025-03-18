@@ -25,58 +25,7 @@ import { AvatarTools, InputTools } from './tools/index.js';
 import { LookDirection, MovementDirection, ServerContext, ToolContext } from './types/index.js';
 import { WebSocketClient } from './ws-client.js';
 
-// Parse command line arguments
-const args = process.argv.slice(2);
-const options: Record<string, string | boolean> = {};
-
-for (let i = 0; i < args.length; i++) {
-  const arg = args[i];
-  
-  if (arg.startsWith('--')) {
-    const option = arg.substring(2);
-    
-    // Check if the next argument is a value or another option
-    if (i + 1 < args.length && !args[i + 1].startsWith('--')) {
-      options[option] = args[i + 1];
-      i++; // Skip the next argument as it's a value
-    } else {
-      // Flag option (no value)
-      options[option] = true;
-    }
-  }
-}
-
-// Set environment variables based on command line options
-if (options['websocket-port']) {
-  process.env.VRCHAT_MCP_OSC_WEBSOCKET_PORT = options['websocket-port'] as string;
-}
-
-if (options['websocket-host']) {
-  process.env.VRCHAT_MCP_OSC_WEBSOCKET_HOST = options['websocket-host'] as string;
-}
-
-if (options['osc-send-port']) {
-  process.env.VRCHAT_MCP_OSC_OSC_SEND_PORT = options['osc-send-port'] as string;
-}
-
-if (options['osc-send-ip']) {
-  process.env.VRCHAT_MCP_OSC_OSC_SEND_IP = options['osc-send-ip'] as string;
-}
-
-if (options['osc-receive-port']) {
-  process.env.VRCHAT_MCP_OSC_OSC_RECEIVE_PORT = options['osc-receive-port'] as string;
-}
-
-if (options['osc-receive-ip']) {
-  process.env.VRCHAT_MCP_OSC_OSC_RECEIVE_IP = options['osc-receive-ip'] as string;
-}
-
-// Set debug level if debug flag is provided
-if (options['debug']) {
-  process.env.LOG_LEVEL = 'debug';
-}
-
-// Setup logger
+// Setup logger first
 const logger = createLogger('MCPServer');
 
 // Get the directory of the current module
@@ -89,29 +38,115 @@ console.log = function() {
   process.stderr.write('[console.log] ' + Array.from(arguments).join(' ') + '\n');
 };
 
+// Parse command line arguments with improved handling
+const args = process.argv.slice(2);
+const options: Record<string, string | boolean> = {};
 
+logger.info(`Processing ${args.length} command line arguments: ${args.join(' ')}`);
 
-// Attempt to locate relay-server package
-let relayServerPath = '';
-// First check relative to current directory (development environment)
-const devRelayPath = path.resolve(__dirname, '../../relay-server/dist/index.js');
-if (fs.existsSync(devRelayPath)) {
-  relayServerPath = devRelayPath;
-  logger.info(`Found relay server at dev path: ${relayServerPath}`);
-  logger.info('Current environment variables:');
-  logger.info(JSON.stringify(options));
-} else {
-  // Then check in node_modules
-  const prodRelayPath = path.resolve(process.cwd(), 'node_modules/@vrchat-mcp-osc/relay-server/dist/index.js');
-  if (fs.existsSync(prodRelayPath)) {
-    relayServerPath = prodRelayPath;
-    logger.info(`Found relay server at prod path: ${relayServerPath}`);
+for (let i = 0; i < args.length; i++) {
+  const arg = args[i];
+  
+  if (arg.startsWith('--')) {
+    const option = arg.substring(2);
+    
+    // Check if the next argument is a value or another option
+    if (i + 1 < args.length && !args[i + 1].startsWith('--')) {
+      options[option] = args[i + 1];
+      logger.info(`Found option ${option} with value ${args[i + 1]}`);
+      i++; // Skip the next argument as it's a value
+    } else {
+      // Flag option (no value)
+      options[option] = true;
+      logger.info(`Found flag option ${option}`);
+    }
   } else {
-    logger.warn('Could not find relay server module. Will attempt default path.');
-    // Default fallback
-    relayServerPath = './node_modules/@vrchat-mcp-osc/relay-server/dist/index.js';
+    logger.debug(`Skipping non-option argument: ${arg}`);
   }
 }
+
+logger.info(`Parsed options: ${JSON.stringify(options, null, 2)}`);
+
+// Set debug level if debug flag is provided
+if (options['debug']) {
+  process.env.LOG_LEVEL = 'debug';
+  logger.info('Debug logging enabled');
+}
+
+// Set environment variables based on command line options
+logger.info('Setting environment variables from command line options');
+
+if (options['websocket-port']) {
+  process.env.VRCHAT_MCP_OSC_WEBSOCKET_PORT = options['websocket-port'] as string;
+  logger.info(`Setting VRCHAT_MCP_OSC_WEBSOCKET_PORT=${process.env.VRCHAT_MCP_OSC_WEBSOCKET_PORT}`);
+}
+
+if (options['websocket-host']) {
+  process.env.VRCHAT_MCP_OSC_WEBSOCKET_HOST = options['websocket-host'] as string;
+  logger.info(`Setting VRCHAT_MCP_OSC_WEBSOCKET_HOST=${process.env.VRCHAT_MCP_OSC_WEBSOCKET_HOST}`);
+}
+
+if (options['osc-send-port']) {
+  process.env.VRCHAT_MCP_OSC_OSC_SEND_PORT = options['osc-send-port'] as string;
+  logger.info(`Setting VRCHAT_MCP_OSC_OSC_SEND_PORT=${process.env.VRCHAT_MCP_OSC_OSC_SEND_PORT}`);
+}
+
+if (options['osc-send-ip']) {
+  process.env.VRCHAT_MCP_OSC_OSC_SEND_IP = options['osc-send-ip'] as string;
+  logger.info(`Setting VRCHAT_MCP_OSC_OSC_SEND_IP=${process.env.VRCHAT_MCP_OSC_OSC_SEND_IP}`);
+}
+
+if (options['osc-receive-port']) {
+  process.env.VRCHAT_MCP_OSC_OSC_RECEIVE_PORT = options['osc-receive-port'] as string;
+  logger.info(`Setting VRCHAT_MCP_OSC_OSC_RECEIVE_PORT=${process.env.VRCHAT_MCP_OSC_OSC_RECEIVE_PORT}`);
+}
+
+if (options['osc-receive-ip']) {
+  process.env.VRCHAT_MCP_OSC_OSC_RECEIVE_IP = options['osc-receive-ip'] as string;
+  logger.info(`Setting VRCHAT_MCP_OSC_OSC_RECEIVE_IP=${process.env.VRCHAT_MCP_OSC_OSC_RECEIVE_IP}`);
+}
+
+
+
+// Attempt to locate relay-server package with enhanced detection logic
+let relayServerPath = '';
+
+// Define possible paths where relay-server might be found
+const possiblePaths = [
+  // Development environment (relative to current directory)
+  path.resolve(__dirname, '../../relay-server/dist/index.js'),
+  
+  // Installed as a local dependency in node_modules
+  path.resolve(process.cwd(), 'node_modules/@vrchat-mcp-osc/relay-server/dist/index.js'),
+  
+  // Installed as part of the same package (npm package with bundled dependencies)
+  path.resolve(__dirname, '../node_modules/@vrchat-mcp-osc/relay-server/dist/index.js'),
+  
+  // NPX execution context (may be in a temporary directory)
+  path.resolve(process.cwd(), '../node_modules/@vrchat-mcp-osc/relay-server/dist/index.js'),
+
+  // Installed globally
+  path.resolve(process.cwd(), '../../node_modules/@vrchat-mcp-osc/relay-server/dist/index.js')
+];
+
+// Try each path in order until we find a valid one
+for (const candidatePath of possiblePaths) {
+  if (fs.existsSync(candidatePath)) {
+    relayServerPath = candidatePath;
+    logger.info(`Found relay server at path: ${relayServerPath}`);
+    break;
+  }
+}
+
+// If we still don't have a valid path, fallback to module name
+if (!relayServerPath) {
+  logger.warn('Could not find relay server at expected paths, using default path.');
+  relayServerPath = './node_modules/@vrchat-mcp-osc/relay-server/dist/index.js';
+}
+
+// ログ出力を改善して引数が正しく表示されるようにする
+logger.info(`Current options: ${JSON.stringify(options, null, 2)}`);
+logger.info(`Command line arguments: ${process.argv.join(' ')}`);
 
 // Create relay server manager (can be disabled with --no-relay flag)
 const noRelay = options['no-relay'] === true;

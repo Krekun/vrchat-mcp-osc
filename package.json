@@ -3,8 +3,17 @@
   "version": "0.1.0",
   "description": "vrchat-mcp-osc - VRChat AI Assistant Integration",
   "private": true,
+  "bin": {
+    "vrchat-mcp-osc": "./packages/mcp-server/dist/server.js"
+  },
+  "files": [
+    "packages/mcp-server/dist",
+    "packages/relay-server/dist",
+    "packages/types/dist",
+    "packages/utils/dist"
+  ],
   "scripts": {
-    "build": "pnpm -r build",
+    "build": "pnpm -r build && chmod +x packages/mcp-server/dist/server.js || echo 'chmod skipped (Windows environment)'",
     "dev": "pnpm -r dev",
     "test": "pnpm -r test",
     "clean": "pnpm -r clean",

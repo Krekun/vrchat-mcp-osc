@@ -1,7 +1,7 @@
 # VRChat MCP OSC
 
 **VRChat MCP OSC** provides a bridge between AI assistants and VRChat using the Model Context Protocol (MCP), enabling AI-driven avatar control and interactions in virtual reality environments.  
-*Note: This project is still under development. Certain detailed parameters cannot be configured yet, but support will be added soon.*
+
 
 ## Overview
 
@@ -29,23 +29,25 @@ And more—all through the high-level API provided by the Model Context Protocol
 
 ## Using with Claude Desktop
 
-planning to upload npm soon...
+### Clone and npm link
 
-1. Clone this repository to your PC
+```bash
+git clone https://github.com/Krekun/vrchat-mcp-osc
+cd vrchat-mcp-osc
+npm link
+```
 
-2. Build with `pnpm -r build`
+### Configure Claude Desktop
 
-3. Configure VRChat to enable OSC (in-game settings)
-
-4. Configure Claude Desktop to use VRChat MCP OSC by editing the `claude_desktop_config.json` file:
+Configure Claude Desktop by editing the `claude_desktop_config.json` file:
 
 ```json
 {
   "mcpServers": {
     "vrchat-mcp-osc": {
-      "command": "node",
+      "command": "npx",
       "args": [
-        "path_to_your_folder\\packages\\mcp-server\\dist\\server.js"
+        "vrchat-mcp-osc"
       ]
     }
   }
@@ -54,15 +56,16 @@ planning to upload npm soon...
 
 ### Command Line Options
 
-You can customize the server's behavior by adding command-line arguments:
+The server supports various command-line arguments for customization:
 
-```json
+```bash
+# Claude Desktop configuration
 {
   "mcpServers": {
     "vrchat-mcp-osc": {
-      "command": "node",
+      "command": "npx",
       "args": [
-        "path_to_your_folder\\packages\\mcp-server\\dist\\server.js",
+        "vrchat-mcp-osc",
         "--websocket-port", "8765",
         "--websocket-host", "localhost",
         "--osc-send-port", "9000",
@@ -80,16 +83,14 @@ You can customize the server's behavior by adding command-line arguments:
 
 | Option | Description | Default | Notes |
 |--------|-------------|---------|-------|
-| `--websocket-port <port>` | WebSocket port | 8765 | For WebSocket通信 |
-| `--websocket-host <host>` | WebSocket host | localhost | For WebSocket通信 |
-| `--osc-send-port <port>` | OSC send port | 9000 | VRChatへの送信ポート |
-| `--osc-send-ip <ip>` | OSC send IP | 127.0.0.1 | VRChatへの送信アドレス |
-| `--osc-receive-port <port>` | OSC receive port | 9001 | VRChatからの受信ポート |
-| `--osc-receive-ip <ip>` | OSC receive IP | 127.0.0.1 | VRChatからの受信アドレス |
-| `--debug` | Enable debug logging | false | 詳細なログを出力 |
-| `--no-relay` | Disable relay server | false | リレーサーバーを使用しない場合 |
-
-3. Restart Claude Desktop and enjoy AI-controlled avatar interactions!
+| `--websocket-port <port>` | WebSocket port | 8765 | For WebSocket communication |
+| `--websocket-host <host>` | WebSocket host | localhost | For WebSocket communication |
+| `--osc-send-port <port>` | OSC send port | 9000 | Port for sending to VRChat |
+| `--osc-send-ip <ip>` | OSC send IP | 127.0.0.1 | Address for sending to VRChat |
+| `--osc-receive-port <port>` | OSC receive port | 9001 | Port for receiving from VRChat |
+| `--osc-receive-ip <ip>` | OSC receive IP | 127.0.0.1 | Address for receiving from VRChat |
+| `--debug` | Enable debug logging | false | Output detailed logs |
+| `--no-relay` | Disable relay server | false | When not using relay server |
 
 ## Available MCP Tools
 
@@ -120,19 +121,44 @@ VRChat MCP OSC exposes the following MCP tools to AI assistants:
 
 2. **MCP server not starting**
    - Ensure Node.js 18+ is installed
-   - Check console logs in Claude Desktop for errors
+   - Check command line arguments for errors
    - Try running with `--debug` flag for more detailed logs
+   - Use `npx vrchat-mcp-osc -- --debug` if direct arguments don't work
+
+3. **NPX execution issues**
+   - If arguments aren't being recognized, try using the double dash format: `npx vrchat-mcp-osc -- --debug`
+   - On Windows, try running in a command prompt with administrator privileges
+   - If you're having trouble with global installation, try the local npm link approach
 
 ## Project Structure
 
 ```
 vrchat-mcp-osc/
 ├── packages/
-│   ├── mcp-server/    # MCP server implementation
+│   ├── mcp-server/    # MCP server implementation (main entry point)
 │   ├── relay-server/  # WebSocket to OSC relay
 │   ├── types/         # Shared TypeScript interfaces
 │   └── utils/         # Common utilities
 └── pnpm-workspace.yaml  # Workspace configuration
+```
+
+## Development
+
+### Build From Source
+
+```bash
+# Clone the repository
+git clone https://github.com/Krekun/vrchat-mcp-osc
+cd vrchat-mcp-osc
+
+# Install dependencies
+pnpm install
+
+# Build all packages
+pnpm -r build
+
+# Development mode
+pnpm -r dev
 ```
 
 ## License
