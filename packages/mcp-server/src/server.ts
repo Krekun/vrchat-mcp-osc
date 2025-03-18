@@ -1,6 +1,16 @@
 #!/usr/bin/env node
 /**
  * VRChat OSC MCP server implementation.
+ * 
+ * Command line arguments:
+ * --websocket-port <port>       WebSocket port (default: 8765)
+ * --websocket-host <host>       WebSocket host (default: localhost)
+ * --osc-send-port <port>        OSC send port (default: 9000)
+ * --osc-send-ip <ip>            OSC send IP (default: 127.0.0.1)
+ * --osc-receive-port <port>     OSC receive port (default: 9001)
+ * --osc-receive-ip <ip>         OSC receive IP (default: 127.0.0.1)
+ * --debug                       Enable debug logging
+ * --no-relay                    Disable relay server
  */
 
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
@@ -15,6 +25,57 @@ import { AvatarTools, InputTools } from './tools/index.js';
 import { LookDirection, MovementDirection, ServerContext, ToolContext } from './types/index.js';
 import { WebSocketClient } from './ws-client.js';
 
+// Parse command line arguments
+const args = process.argv.slice(2);
+const options: Record<string, string | boolean> = {};
+
+for (let i = 0; i < args.length; i++) {
+  const arg = args[i];
+  
+  if (arg.startsWith('--')) {
+    const option = arg.substring(2);
+    
+    // Check if the next argument is a value or another option
+    if (i + 1 < args.length && !args[i + 1].startsWith('--')) {
+      options[option] = args[i + 1];
+      i++; // Skip the next argument as it's a value
+    } else {
+      // Flag option (no value)
+      options[option] = true;
+    }
+  }
+}
+
+// Set environment variables based on command line options
+if (options['websocket-port']) {
+  process.env.VRCHAT_MCP_OSC_WEBSOCKET_PORT = options['websocket-port'] as string;
+}
+
+if (options['websocket-host']) {
+  process.env.VRCHAT_MCP_OSC_WEBSOCKET_HOST = options['websocket-host'] as string;
+}
+
+if (options['osc-send-port']) {
+  process.env.VRCHAT_MCP_OSC_OSC_SEND_PORT = options['osc-send-port'] as string;
+}
+
+if (options['osc-send-ip']) {
+  process.env.VRCHAT_MCP_OSC_OSC_SEND_IP = options['osc-send-ip'] as string;
+}
+
+if (options['osc-receive-port']) {
+  process.env.VRCHAT_MCP_OSC_OSC_RECEIVE_PORT = options['osc-receive-port'] as string;
+}
+
+if (options['osc-receive-ip']) {
+  process.env.VRCHAT_MCP_OSC_OSC_RECEIVE_IP = options['osc-receive-ip'] as string;
+}
+
+// Set debug level if debug flag is provided
+if (options['debug']) {
+  process.env.LOG_LEVEL = 'debug';
+}
+
 // Setup logger
 const logger = createLogger('MCPServer');
 
@@ -28,6 +89,8 @@ console.log = function() {
   process.stderr.write('[console.log] ' + Array.from(arguments).join(' ') + '\n');
 };
 
+
+
 // Attempt to locate relay-server package
 let relayServerPath = '';
 // First check relative to current directory (development environment)
@@ -35,6 +98,8 @@ const devRelayPath = path.resolve(__dirname, '../../relay-server/dist/index.js')
 if (fs.existsSync(devRelayPath)) {
   relayServerPath = devRelayPath;
   logger.info(`Found relay server at dev path: ${relayServerPath}`);
+  logger.info('Current environment variables:');
+  logger.info(JSON.stringify(options));
 } else {
   // Then check in node_modules
   const prodRelayPath = path.resolve(process.cwd(), 'node_modules/@vrchat-mcp-osc/relay-server/dist/index.js');
@@ -48,37 +113,62 @@ if (fs.existsSync(devRelayPath)) {
   }
 }
 
-// Create relay server manager
-const relayServerManager = new RelayServerManager({
-  execPath: 'node',
-  args: [relayServerPath],
-  autoRestart: true,
-  env: {
-    VRCHAT_MCP_OSC_WEBSOCKET_PORT: process.env.VRCHAT_MCP_OSC_WEBSOCKET_PORT || '8765'
-  }
-});
+// Create relay server manager (can be disabled with --no-relay flag)
+const noRelay = options['no-relay'] === true;
 
-// Add event handlers for relay server
-relayServerManager.on(RelayServerManagerEvent.STARTED, () => {
-  logger.info('Relay server started successfully');
-});
+let relayServerManager: RelayServerManager | null = null;
 
-relayServerManager.on(RelayServerManagerEvent.STOPPED, () => {
-  logger.info('Relay server stopped');
-});
+if (!noRelay) {
+  relayServerManager = new RelayServerManager({
+    execPath: 'node',
+    args: [relayServerPath],
+    autoRestart: true,
+    env: {
+      // WebSocket設定
+      VRCHAT_MCP_OSC_WEBSOCKET_PORT: process.env.VRCHAT_MCP_OSC_WEBSOCKET_PORT || '8765',
+      VRCHAT_MCP_OSC_WEBSOCKET_HOST: process.env.VRCHAT_MCP_OSC_WEBSOCKET_HOST || 'localhost',
+      
+      // OSC送信設定
+      VRCHAT_MCP_OSC_OSC_SEND_PORT: process.env.VRCHAT_MCP_OSC_OSC_SEND_PORT || '9000',
+      VRCHAT_MCP_OSC_OSC_SEND_IP: process.env.VRCHAT_MCP_OSC_OSC_SEND_IP || '127.0.0.1',
+      
+      // OSC受信設定
+      VRCHAT_MCP_OSC_OSC_RECEIVE_PORT: process.env.VRCHAT_MCP_OSC_OSC_RECEIVE_PORT || '9001',
+      VRCHAT_MCP_OSC_OSC_RECEIVE_IP: process.env.VRCHAT_MCP_OSC_OSC_RECEIVE_IP || '127.0.0.1',
+      
+      // デバッグモード設定
+      LOG_LEVEL: process.env.LOG_LEVEL || 'info'
+    }
+  });
+  
+  // Add event handlers for relay server
+  relayServerManager.on(RelayServerManagerEvent.STARTED, () => {
+    logger.info('Relay server started successfully');
+  });
+  
+  relayServerManager.on(RelayServerManagerEvent.STOPPED, () => {
+    logger.info('Relay server stopped');
+  });
+  
+  relayServerManager.on(RelayServerManagerEvent.ERROR, (error) => {
+    logger.error(`Relay server error: ${error.message}`);
+  });
+  
+  relayServerManager.on(RelayServerManagerEvent.RESTARTING, ({ attempt }) => {
+    logger.info(`Relay server restarting (attempt ${attempt})`);
+  });
+} else {
+  logger.info('Relay server disabled by --no-relay flag');
+}
 
-relayServerManager.on(RelayServerManagerEvent.ERROR, (error) => {
-  logger.error(`Relay server error: ${error.message}`);
-});
-
-relayServerManager.on(RelayServerManagerEvent.RESTARTING, ({ attempt }) => {
-  logger.info(`Relay server restarting (attempt ${attempt})`);
-});
+// WebSocket host and port from options or environment variables
+const wsHost = process.env.VRCHAT_MCP_OSC_WEBSOCKET_HOST || 'localhost';
+const wsPort = parseInt(process.env.VRCHAT_MCP_OSC_WEBSOCKET_PORT || '8765', 10);
 
 // Initialize WebSocket client
 const wsClient = new WebSocketClient({
-  host: process.env.VRCHAT_MCP_OSC_WEBSOCKET_HOST || 'localhost',
-  port: parseInt(process.env.VRCHAT_MCP_OSC_WEBSOCKET_PORT || '8765', 10),
+  host: wsHost,
+  port: wsPort,
   reconnectAttempts: 3
 });
 
@@ -106,12 +196,14 @@ async function initializeServer(): Promise<void> {
   logger.info('Initializing VRChat OSC MCP server');
   
   try {
-    // Start relay server first
-    logger.info('Starting relay server...');
-    const relayStarted = await relayServerManager.start();
-    
-    if (!relayStarted) {
-      logger.warn('Failed to start relay server. Some features may not work properly.');
+    // Start relay server first (if enabled)
+    if (relayServerManager) {
+      logger.info('Starting relay server...');
+      const relayStarted = await relayServerManager.start();
+      
+      if (!relayStarted) {
+        logger.warn('Failed to start relay server. Some features may not work properly.');
+      }
     }
     
     // Connect to WebSocket server
@@ -145,8 +237,10 @@ async function cleanup(): Promise<void> {
   logger.info('Shutting down VRChat OSC MCP server');
   
   try {
-    // Stop relay server
-    await relayServerManager.stop();
+    // Stop relay server (if enabled)
+    if (relayServerManager) {
+      await relayServerManager.stop();
+    }
     
     // Disconnect from WebSocket server
     await wsClient.disconnect();
@@ -188,18 +282,6 @@ function createToolContext(extra: any): ToolContext {
   };
 }
 
-// Add test tool
-server.tool(
-  'add',
-  'Add two numbers',
-  {
-    a: z.number().describe('First number'),
-    b: z.number().describe('Second number')
-  },
-  async ({ a, b }) => {
-    return { content: [{ type: 'text', text: String(a + b) }] };
-  }
-);
 
 // Register avatar tools
 server.tool(

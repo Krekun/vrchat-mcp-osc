@@ -31,13 +31,13 @@ And more—all through the high-level API provided by the Model Context Protocol
 
 planning to upload npm soon...
 
-1. clone this repository to your pc
+1. Clone this repository to your PC
 
-1. build with pnpm -r build
+2. Build with `pnpm -r build`
 
-2. Configure VRChat to enable OSC (in-game settings)
+3. Configure VRChat to enable OSC (in-game settings)
 
-3. Configure Claude Desktop to use VRChat MCP OSC by editing the `claude_desktop_config.json` file:
+4. Configure Claude Desktop to use VRChat MCP OSC by editing the `claude_desktop_config.json` file:
 
 ```json
 {
@@ -45,12 +45,49 @@ planning to upload npm soon...
     "vrchat-mcp-osc": {
       "command": "node",
       "args": [
-        "path_to_your_folder\\packages\\mcp-server\\dist\\server.js" 
+        "path_to_your_folder\\packages\\mcp-server\\dist\\server.js"
       ]
     }
   }
 }
 ```
+
+### Command Line Options
+
+You can customize the server's behavior by adding command-line arguments:
+
+```json
+{
+  "mcpServers": {
+    "vrchat-mcp-osc": {
+      "command": "node",
+      "args": [
+        "path_to_your_folder\\packages\\mcp-server\\dist\\server.js",
+        "--websocket-port", "8765",
+        "--websocket-host", "localhost",
+        "--osc-send-port", "9000",
+        "--osc-send-ip", "127.0.0.1",
+        "--osc-receive-port", "9001",
+        "--osc-receive-ip", "127.0.0.1",
+        "--debug"             
+      ]
+    }
+  }
+}
+```
+
+### Available Options
+
+| Option | Description | Default | Notes |
+|--------|-------------|---------|-------|
+| `--websocket-port <port>` | WebSocket port | 8765 | For WebSocket通信 |
+| `--websocket-host <host>` | WebSocket host | localhost | For WebSocket通信 |
+| `--osc-send-port <port>` | OSC send port | 9000 | VRChatへの送信ポート |
+| `--osc-send-ip <ip>` | OSC send IP | 127.0.0.1 | VRChatへの送信アドレス |
+| `--osc-receive-port <port>` | OSC receive port | 9001 | VRChatからの受信ポート |
+| `--osc-receive-ip <ip>` | OSC receive IP | 127.0.0.1 | VRChatからの受信アドレス |
+| `--debug` | Enable debug logging | false | 詳細なログを出力 |
+| `--no-relay` | Disable relay server | false | リレーサーバーを使用しない場合 |
 
 3. Restart Claude Desktop and enjoy AI-controlled avatar interactions!
 
