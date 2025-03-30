@@ -167,13 +167,15 @@ export class RelayServerManager {
       this.isRunning = false;
       this.process = null;
       
-      // Handle automatic restart
-      if (this.config.autoRestart && this.restartCount < (this.config.maxRestarts || 3)) {
-        this.handleAutoRestart();
-      } else {
-        this.emitEvent(RelayServerManagerEvent.STOPPED, { code, signal });
-      }
-    });
+    //   // Handle automatic restart
+    //   //
+    //   if (this.config.autoRestart && this.restartCount < (this.config.maxRestarts || 3)) {
+    //     this.handleAutoRestart();
+    //   } else {
+    //     this.emitEvent(RelayServerManagerEvent.STOPPED, { code, signal });
+    //   }
+    }
+  );
     
     // Handle process errors
     this.process.on('error', (error) => {

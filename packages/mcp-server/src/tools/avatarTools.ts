@@ -13,6 +13,7 @@ const logger = createLogger('AvatarTools');
  */
 export class AvatarTools {
   private wsClient: WebSocketClient;
+  private logger = createLogger('AvatarTools');
   private currentAvatarInfo: { id: string | null; name: string } = { id: null, name: 'Unknown Avatar' };
   private avatarConfigs: Map<string, AvatarConfig> = new Map();
 
@@ -29,6 +30,36 @@ export class AvatarTools {
   }
 
   
+
+  /**
+   * Get a list of all available avatars.
+   *
+   * @param ctx - MCP Context (optional)
+   * @returns Promise resolving to an object with avatar IDs as keys and names as values
+   */
+  public async getAllAvatars(ctx?: ToolContext): Promise<{ [avatarId: string]: string }> {
+    if (ctx) {
+      await ctx.info('Getting list of available avatars');
+    }
+
+    try {
+      const avatars = await this.wsClient.getAvatarlist();
+      
+      if (ctx) {
+        const avatarCount = Object.keys(avatars).length;
+        await ctx.info(`Found ${avatarCount} available avatars`);
+      }
+
+      return avatars;
+    } catch (error) {
+      const errorMsg = `Error getting avatar list: ${error instanceof Error ? error.message : String(error)}`;
+      this.logger.error(errorMsg);
+      if (ctx) {
+        await ctx.error(errorMsg);
+      }
+      return {};
+    }
+  }
 
   /**
    * Get the current avatar name.
@@ -238,6 +269,85 @@ export class AvatarTools {
    * @param ctx - MCP Context (optional)
    * @returns Promise resolving to a confirmation message
    */
+  /**
+   * Change the current avatar.
+   *
+   * @param avatarId - ID of the avatar to change to
+   * @param ctx - MCP Context (optional)
+   * @returns Promise resolving to a confirmation message
+   */
+  public async setAvatar(
+    avatarId: string,
+    ctx?: ToolContext
+  ): Promise<string> {
+    if (!avatarId) {
+      const errorMsg = 'Missing avatar ID';
+      logger.error(errorMsg);
+      if (ctx) await ctx.error(errorMsg);
+      return errorMsg;
+    }
+
+    if (ctx) {
+      await ctx.info(`Changing avatar to ${avatarId}`);
+    }
+
+    try {
+      // Multiple retry attempts
+      let attempts = 0;
+      const maxAttempts = 3;
+
+      while (attempts < maxAttempts) {
+        attempts++;
+        logger.info(`Changing avatar to ${avatarId} (attempt ${attempts}/${maxAttempts})`);
+
+        try {
+        //   // Get available avatars
+        //   const avatars = await this.wsClient.getAvatarlist();
+        //   if (!avatars || !avatars[avatarId]) {
+        //     throw new Error(`Avatar ${avatarId} not found in available avatars`);
+        //   }
+
+          // Send avatar change request using the new method
+          const success = await this.wsClient.setAvatar(avatarId);
+
+          if (success) {
+            // const successMsg = `Successfully changed avatar to ${avatars[avatarId]} (${avatarId})`;
+            const successMsg = `Successfully changed avatar to (${avatarId})`;
+            logger.info(successMsg);
+            return successMsg;
+          } else {
+            logger.warn(`Failed to change avatar (attempt ${attempts})`);
+
+            // Try again if we have attempts left
+            if (attempts < maxAttempts) {
+              const delay = 300 * attempts;
+              logger.info(`Retrying in ${delay}ms...`);
+              await new Promise(resolve => setTimeout(resolve, delay));
+            }
+          }
+        } catch (error) {
+          logger.warn(`Error changing avatar (attempt ${attempts}): ${error instanceof Error ? error.message : String(error)}`);
+
+          // Try again if we have attempts left
+          if (attempts < maxAttempts) {
+            const delay = 300 * attempts;
+            logger.info(`Retrying in ${delay}ms...`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+          }
+        }
+      }
+
+      // All attempts failed
+      const failMsg = `Failed to change avatar after ${maxAttempts} attempts`;
+      logger.error(failMsg);
+      return failMsg;
+    } catch (error) {
+      const errorMsg = `Error changing avatar: ${error instanceof Error ? error.message : String(error)}`;
+      logger.error(errorMsg);
+      return errorMsg;
+    }
+  }
+
   public async setParameter(
     parameterName: string,
     value: ParameterValue,

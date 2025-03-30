@@ -17,3 +17,5 @@ dist/
 .env.local
 logs/
 *.log
+*lock.json
+*lock.yaml

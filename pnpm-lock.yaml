@@ -139,40 +139,6 @@ importers:
         specifier: ^5.3.3
         version: 5.8.2
 
-  packages/vrchat-mcp-osc:
-    dependencies:
-      '@vrchat-mcp-osc/mcp-server':
-        specifier: workspace:*
-        version: link:../mcp-server
-      '@vrchat-mcp-osc/relay-server':
-        specifier: workspace:*
-        version: link:../relay-server
-      '@vrchat-mcp-osc/types':
-        specifier: workspace:*
-        version: link:../types
-      '@vrchat-mcp-osc/utils':
-        specifier: workspace:*
-        version: link:../utils
-      commander:
-        specifier: ^11.1.0
-        version: 11.1.0
-    devDependencies:
-      '@types/node':
-        specifier: ^20.10.5
-        version: 20.17.24
-      eslint:
-        specifier: ^9.20.0
-        version: 9.22.0
-      rimraf:
-        specifier: ^5.0.5
-        version: 5.0.10
-      ts-node:
-        specifier: ^10.9.2
-        version: 10.9.2(@types/node@20.17.24)(typescript@5.8.2)
-      typescript:
-        specifier: ^5.3.3
-        version: 5.8.2
-
 packages:
 
   '@colors/colors@1.6.0':
@@ -402,10 +368,6 @@ packages:
 
   colorspace@1.1.4:
     resolution: {integrity: sha512-BgvKJiuVu1igBUF2kEjRCZXol6wiiGbY5ipL/oVPwm0BL9sIpMIzM8IK7vwuxIIzOXMV3Ey5w+vxhm0rR/TN8w==}
-
-  commander@11.1.0:
-    resolution: {integrity: sha512-yPVavfyCcRhmorC7rWlkHn15b4wDVgVmBA7kV4QVBsF7kv/9TKJAbAXVTxvTnwP8HHKjRCJDClKbciiYS7p0DQ==}
-    engines: {node: '>=16'}
 
   concat-map@0.0.1:
     resolution: {integrity: sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==}
@@ -1390,8 +1352,6 @@ snapshots:
     dependencies:
       color: 3.2.1
       text-hex: 1.0.0
-
-  commander@11.1.0: {}
 
   concat-map@0.0.1: {}
 

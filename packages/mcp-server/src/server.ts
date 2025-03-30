@@ -320,6 +320,50 @@ function createToolContext(extra: any): ToolContext {
 
 // Register avatar tools
 server.tool(
+  'get_avatar_list',
+  'Get a list of available avatars.',
+  {},
+  async (_, extra) => {
+    try {
+      const ctx = createToolContext(extra);
+      const avatars = await avatarTools.getAllAvatars();
+      return { content: [{ type: 'text', text: JSON.stringify(avatars) }] };
+    } catch (error) {
+      return {
+        content: [{
+          type: 'text',
+          text: `Error getting avatar list: ${error instanceof Error ? error.message : String(error)}`
+        }],
+        isError: true
+      };
+    }
+  }
+);
+
+server.tool(
+  'set_avatar',
+  'Change to a specific avatar.',
+  {
+    avatar_id: z.string().describe('ID of the avatar to change to')
+  },
+  async ({ avatar_id }, extra) => {
+    try {
+      const ctx = createToolContext(extra);
+      const result = await avatarTools.setAvatar(avatar_id, ctx);
+      return { content: [{ type: 'text', text: result }] };
+    } catch (error) {
+      return {
+        content: [{
+          type: 'text',
+          text: `Error changing avatar: ${error instanceof Error ? error.message : String(error)}`
+        }],
+        isError: true
+      };
+    }
+  }
+);
+
+server.tool(
   'get_avatar_name',
   'Get the name of the current avatar.',
   {},

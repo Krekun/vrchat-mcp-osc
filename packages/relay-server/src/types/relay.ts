@@ -14,6 +14,8 @@ export type RelayAction =
   | 'avatar/getParameters'
   | 'avatar/setParameter'
   | 'input/sendCommand'
+  | 'avatar/getAvatarlist'
+  | 'avatar/setAvatar'
   | 'chatbox/sendMessage';
 
 /**

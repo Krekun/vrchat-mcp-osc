@@ -2,17 +2,17 @@
  * Main relay server implementation for VRChat OSC
  */
 import {
-    Event,
-    OscEvent,
-    Request,
-    Response
+  Event,
+  OscEvent,
+  Request,
+  Response
 } from '@vrchat-mcp-osc/types';
 import { Config, createLogger, generateId } from '@vrchat-mcp-osc/utils';
 import { WebSocket } from 'ws';
 import { VRChatOSCClient } from './osc-client.js';
 import {
-    RelayAction,
-    RelayServerStatus
+  RelayAction,
+  RelayServerStatus
 } from './types/relay.js';
 import { RelayWebSocketServer } from './websocket-server.js';
 
@@ -182,7 +182,7 @@ export class OscRelayServer {
         case 'test':
           response.data = { status: 'ok', message: 'Relay server is running' };
           break;
-
+        
         case 'getStatus':
           response.data = this.getStatus();
           break;
@@ -205,6 +205,32 @@ export class OscRelayServer {
           logger.error('avatar/getInfo is called');
           const avatarInfo = this.oscClient.get_avatar_info();
           response.data = { avatar: avatarInfo || { id: 'unknown', name: 'Unknown' } };
+          break;
+
+        case 'avatar/getAvatarlist':
+          // Get list of available avatars
+          logger.info('Getting avatar list from OSC client');
+          try {
+            const avatarList = await this.oscClient.getAvatarlist();
+            logger.info(`Got avatar list with ${Object.keys(avatarList).length} avatars`);
+            logger.debug(`Avatar list: ${JSON.stringify(avatarList)}`);
+            response.data = { avatars: avatarList };
+          } catch (error) {
+            logger.error(`Error getting avatar list: ${error instanceof Error ? error.message : String(error)}`);
+            response.error = { message: 'Failed to get avatar list' };
+          }
+          break;
+
+        case 'avatar/setAvatar':
+          // Change avatar
+          const avatarId = data.avatarId as string;
+          
+          if (!avatarId) {
+            response.error = { message: 'Missing avatar ID' };
+          } else {
+            const success = await this.oscClient.setAvatar(avatarId);
+            response.data = { success };
+          }
           break;
 
         case 'avatar/getParameters':

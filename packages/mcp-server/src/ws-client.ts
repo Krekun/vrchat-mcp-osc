@@ -6,9 +6,9 @@ import { createLogger } from '@vrchat-mcp-osc/utils';
 import { v4 as uuidv4 } from 'uuid';
 import WebSocket from 'ws';
 import {
-    ParameterValue,
-    WebSocketClientParams,
-    WebSocketRequest
+  ParameterValue,
+  WebSocketClientParams,
+  WebSocketRequest
 } from './types/index.js';
 
 /**
@@ -599,5 +599,58 @@ export class WebSocketClient {
     });
     this.logger.info(`Chatbox message response: ${JSON.stringify(response)}`);
     return response.success;
+  }
+
+  /**
+   * Get a list of all available avatars.
+   *
+   * @returns Promise resolving to an object with avatar IDs as keys and names as values
+   */
+  public async getAvatarlist(): Promise<{ [avatarId: string]: string }> {
+    try {
+      const response = await this.sendRequest<{ avatars: { [avatarId: string]: string } }>('avatar/getAvatarlist');
+      return response.avatars || {};
+    } catch (error) {
+      this.logger.error(`Error getting avatar list: ${error instanceof Error ? error.message : String(error)}`);
+      return {};
+    }
+  }
+
+  /**
+   * Send a raw OSC message.
+   *
+   * @param address - OSC address to send to
+   * @param value - Value to send
+   * @returns Promise resolving to true if successful, false otherwise
+   */
+  /**
+   * Change to a different avatar.
+   *
+   * @param avatarId - ID of the avatar to change to
+   * @returns Promise resolving to true if successful, false otherwise
+   */
+  public async setAvatar(avatarId: string): Promise<boolean> {
+    try {
+      const response = await this.sendRequest<{ success: boolean }>('avatar/setAvatar', {
+        avatarId
+      });
+      return response.success || false;
+    } catch (error) {
+      this.logger.error(`Error changing avatar: ${error instanceof Error ? error.message : String(error)}`);
+      return false;
+    }
+  }
+
+  public async send_message(address: string, value: any): Promise<boolean> {
+    try {
+      const response = await this.sendRequest<{ success: boolean }>('sendOsc', {
+        address,
+        value
+      });
+      return response.success || false;
+    } catch (error) {
+      this.logger.error(`Error sending OSC message: ${error instanceof Error ? error.message : String(error)}`);
+      return false;
+    }
   }
 }

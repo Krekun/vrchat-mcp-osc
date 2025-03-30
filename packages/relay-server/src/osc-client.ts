@@ -2,12 +2,12 @@
  * OSC client for communicating with VRChat
  */
 import {
-    AvatarConfig,
-    AvatarInfo,
-    OscClientStatus,
-    OscEvent,
-    OscOptions,
-    OscValue
+  AvatarConfig,
+  AvatarInfo,
+  OscClientStatus,
+  OscEvent,
+  OscOptions,
+  OscValue
 } from '@vrchat-mcp-osc/types';
 import { createLogger } from '@vrchat-mcp-osc/utils';
 import { EventEmitter } from 'events';
@@ -426,5 +426,86 @@ export class VRChatOSCClient extends EventEmitter {
       args,
       value: paramValue // 明示的に値も含める
     } as OscEvent);
+  }
+    /**
+   * Get a list of all available avatars.
+   *
+   * @returns Object with avatar IDs as keys and avatar names as values
+   */
+  /**
+   * Change to a different avatar.
+   *
+   * @param avatarId - ID of the avatar to change to
+   * @returns Promise resolving to true if successful, false otherwise
+   */
+  public async setAvatar(avatarId: string): Promise<boolean> {
+    try {
+      // アバターIDの検証
+      if (!this.avatarConfigs.has(avatarId)) {
+        logger.error(`Avatar ${avatarId} not found in available avatars`);
+        return false;
+      }
+
+      logger.info(`Changing to avatar: ${avatarId} (${this.avatarConfigs.get(avatarId)?.name})`);
+
+      // アバター変更メッセージを送信
+      const success = this.send_message('/avatar/change', avatarId);
+      if (!success) {
+        throw new Error('Failed to send avatar change message');
+      }
+
+      // 変更完了まで待機
+      await new Promise<void>((resolve, reject) => {
+        const timeout = setTimeout(() => {
+          this.removeListener('avatarChanged', handler);
+          reject(new Error('Avatar change timeout'));
+        }, 10000); // 10秒タイムアウト
+
+        const handler = (event: OscEvent) => {
+          if (event.eventType === 'avatar/changed' && event.args[0] === avatarId) {
+            clearTimeout(timeout);
+            this.removeListener('avatarChanged', handler);
+            resolve();
+          }
+        };
+
+        this.on('avatarChanged', handler);
+      });
+
+      logger.info(`Successfully changed to avatar: ${avatarId}`);
+      return true;
+    } catch (error) {
+      logger.error(`Error changing avatar: ${error instanceof Error ? error.message : String(error)}`);
+      return false;
+    }
+  }
+
+  public async getAvatarlist(): Promise<{ [avatarId: string]: string }> {
+    try {
+      logger.info('Loading avatar configurations...');
+      
+      // 設定を再読み込み
+      await this.loadAllAvatarConfigs();
+      
+      logger.info(`Current avatar configs count: ${this.avatarConfigs.size}`);
+      
+      const avatarList: { [avatarId: string]: string } = {};
+      this.avatarConfigs.forEach((config, avatarId) => {
+        logger.debug(`Processing avatar: ${avatarId}`);
+        if (config.name) {
+          logger.debug(`Adding avatar: ${avatarId} (${config.name})`);
+          avatarList[avatarId] = config.name;
+        } else {
+          logger.warn(`Avatar ${avatarId} has no name in config`);
+        }
+      });
+      
+      logger.info(`Found ${Object.keys(avatarList).length} avatars with names`);
+      logger.debug(`Complete avatar list: ${JSON.stringify(avatarList)}`);
+      return avatarList;
+    } catch (error) {
+      logger.error(`Error getting avatar list: ${error instanceof Error ? error.message : String(error)}`);
+      return {};
+    }
   }
 }
