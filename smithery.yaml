@@ -1,0 +1,66 @@
+# Smithery configuration file: https://smithery.ai/docs/build/project-config
+
+startCommand:
+  type: stdio
+  commandFunction:
+    # A JS function that produces the CLI command based on the given config to start the MCP on stdio.
+    |-
+    (config) => {
+      const args = [];
+      args.push("dist/server.js");
+      args.push("--websocket-host", config.websocketHost);
+      args.push("--websocket-port", String(config.websocketPort));
+      args.push("--osc-send-ip", config.oscSendIp);
+      args.push("--osc-send-port", String(config.oscSendPort));
+      args.push("--osc-receive-ip", config.oscReceiveIp);
+      args.push("--osc-receive-port", String(config.oscReceivePort));
+      if (config.debug) args.push("--debug");
+      if (config.noRelay) args.push("--no-relay");
+      return { command: "node", args };
+    }
+  configSchema:
+    # JSON Schema defining the configuration options for the MCP.
+    type: object
+    required: []
+    properties:
+      websocketHost:
+        type: string
+        default: localhost
+        description: WebSocket host for communication
+      websocketPort:
+        type: number
+        default: 8765
+        description: WebSocket port for communication
+      oscSendIp:
+        type: string
+        default: 127.0.0.1
+        description: IP address to send OSC messages to VRChat
+      oscSendPort:
+        type: number
+        default: 9000
+        description: Port to send OSC messages to VRChat
+      oscReceiveIp:
+        type: string
+        default: 127.0.0.1
+        description: IP address to receive OSC messages from VRChat
+      oscReceivePort:
+        type: number
+        default: 9001
+        description: Port to receive OSC messages from VRChat
+      debug:
+        type: boolean
+        default: false
+        description: Enable debug logging
+      noRelay:
+        type: boolean
+        default: false
+        description: Disable relay server
+  exampleConfig:
+    websocketHost: localhost
+    websocketPort: 8765
+    oscSendIp: 127.0.0.1
+    oscSendPort: 9000
+    oscReceiveIp: 127.0.0.1
+    oscReceivePort: 9001
+    debug: false
+    noRelay: false
