@@ -1,4 +1,5 @@
 # VRChat MCP OSC
+[![smithery badge](https://smithery.ai/badge/@Krekun/vrchat-mcp-osc)](https://smithery.ai/server/@Krekun/vrchat-mcp-osc)
 
 **VRChat MCP OSC** provides a bridge between AI assistants and VRChat using the Model Context Protocol (MCP), enabling AI-driven avatar control and interactions in virtual reality environments.  
 
@@ -28,6 +29,14 @@ And more—all through the high-level API provided by the Model Context Protocol
 - Claude Desktop (with MCP support)
 
 ## Using with Claude Desktop
+
+### Installing via Smithery
+
+To install VRChat AI Assistant Bridge for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@Krekun/vrchat-mcp-osc):
+
+```bash
+npx -y @smithery/cli install @Krekun/vrchat-mcp-osc --client claude
+```
 
 ### Clone and npm link
 
