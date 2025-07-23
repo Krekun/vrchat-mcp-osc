@@ -1,7 +1,10 @@
 # VRChat MCP OSC
 
-**VRChat MCP OSC** provides a bridge between AI assistants and VRChat using the Model Context Protocol (MCP), enabling AI-driven avatar control and interactions in virtual reality environments.  
+**VRChat MCP OSC** provides a bridge between AI assistants and VRChat using the Model Context Protocol (MCP), enabling AI-driven avatar control and interactions in virtual reality environments.
 
+<a href="https://glama.ai/mcp/servers/@Krekun/vrchat-mcp-osc">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/@Krekun/vrchat-mcp-osc/badge" alt="VRChat OSC MCP server" />
+</a>
 
 ## Overview
 
@@ -10,7 +13,6 @@ By leveraging OSC (Open Sound Control) to communicate with VRChat, **VRChat MCP 
 - Send messages in VRChat
 - Respond to various VR events  
 And more—all through the high-level API provided by the Model Context Protocol.
-
 
 ## Key Features
 
@@ -109,7 +111,6 @@ VRChat MCP OSC exposes the following MCP tools to AI assistants:
 | `voice` | Toggles voice features |
 | `send_message` | Sends a message to the VRChat chatbox |
 
-
 ## Troubleshooting
 
 ### Common Issues
@@ -170,7 +171,6 @@ You may use, modify, and redistribute the software under the terms of the MIT Li
 
 For Commercial Use:
 Commercial use of this software requires a separate commercial license.
-
 
 By using this software under the MIT License for non-commercial purposes, you agree to the terms of that license. Commercial users must obtain a commercial license as described above.
 
